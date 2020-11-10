@@ -1,8 +1,10 @@
 public class Board {
     private int[][] tiles;
+
     public Board(int[][] tiles) {
         this.tiles = tiles;
     }
+
     public String toString() {
         StringBuilder s = new StringBuilder(new String(String.valueOf(this.dimension()) + "\n"));
         for (int[] row : tiles) {
@@ -22,27 +24,33 @@ public class Board {
 
     public int hamming() {
         int ret = 0;
-        for (int i = 0; i < this.dimension(); i ++) {
-            for (int j = 0; j < this.dimension(); j ++) {
-                if (tiles[i][j] != i * this.dimension() + (j+1)) {
+        for (int i = 0; i < this.dimension(); i++)
+            for (int j = 0; j < this.dimension(); j++)
+                if (tiles[i][j] != 0 && tiles[i][j] != i * this.dimension() + (j + 1))
                     ret += 1;
+        return ret;
+    }
+
+    public int manhattan() {
+        int ret = 0;
+        for (int i = 0; i < this.dimension(); i++)
+            for (int j = 0; j < this.dimension(); j++)
+                if (tiles[i][j] != 0 && tiles[i][j] != i * this.dimension() + (j + 1)) {
+                    int realI = tiles[i][j] / this.dimension();
+                    int realJ = tiles[i][j] % this.dimension() - 1;
+                    ret += Math.abs(realI - i) + Math.abs(realJ - j);
                 }
-            }
-        }
-        if (tiles[this.dimension()-1][this.dimension()-1] == 0) {
-            ret -= 1;
-        }
         return ret;
     }
 
     public static void main(String[] args) {
         int[][] tiles = {
-                {1, 2, 3},
-                {4, 5, 6},
-                {8, 7, 0},
+                {8, 1, 3},
+                {4, 0, 2},
+                {7, 6, 5},
         };
         Board board = new Board(tiles);
         System.out.println(board);
-        System.out.println(board.hamming());
+        System.out.println(board.manhattan());
     }
 }
