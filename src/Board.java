@@ -1,7 +1,6 @@
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
+
+import edu.princeton.cs.algs4.StdRandom;
 
 public class Board {
     private int[][] tiles;
@@ -56,7 +55,6 @@ public class Board {
         if (this == y) return true;
         if (this.getClass() != y.getClass()) return false;
         Board obj2 = (Board) y;
-        if (this.dimension() != obj2.dimension()) return false;
         return this.toString().equals(obj2.toString());
 
     }
@@ -74,10 +72,7 @@ public class Board {
 
         int[][] neigh = neighbors(i0, j0);
         for (int[] n : neigh) {
-            int[][] newTiles = new int[dimension()][dimension()];
-            for (int k = 0; k < dimension(); k ++) {
-                System.arraycopy(tiles[k], 0, newTiles[k], 0, dimension());
-            }
+            int[][] newTiles = geneTiles();
             boolean res = exch(newTiles, i0, j0, n[0], n[1]);
             if (res) {
                 boardArrayList.add(new Board(newTiles));
@@ -89,24 +84,41 @@ public class Board {
 
     private int[][] neighbors(int i, int j) {
         return new int[][]{
-                {i-1, j},
-                {i, j-1},
-                {i+1, j},
-                {i, j+1},
+                {i - 1, j},
+                {i, j - 1},
+                {i + 1, j},
+                {i, j + 1},
         };
     }
 
     private boolean exch(int[][] newTiles, int i, int j, int newI, int newJ) {
         if (newI >= 0 && newJ >= 0 && newI < dimension() && newJ < dimension()) {
+            int temp = newTiles[i][j];
             newTiles[i][j] = newTiles[newI][newJ];
-            newTiles[newI][newJ] = 0;
+            newTiles[newI][newJ] = temp;
             return true;
         }
         return false;
     }
 
+    private int[][] geneTiles() {
+        int[][] newTiles = new int[dimension()][dimension()];
+        for (int k = 0; k < dimension(); k++) {
+            System.arraycopy(tiles[k], 0, newTiles[k], 0, dimension());
+        }
+        return newTiles;
+    }
+
     public Board twin() {
-        return new Board(null);
+        int rand1 = StdRandom.uniform(dimension() * dimension());
+        int rand2 = StdRandom.uniform(dimension() * dimension());
+        while (rand1 == rand2) {
+            rand2 = StdRandom.uniform(dimension() * dimension());
+        }
+        int[][] newTile = geneTiles();
+        exch(newTile, rand1 / dimension(), rand1 % dimension(), rand2 / dimension(), rand2 % dimension());
+
+        return new Board(newTile);
     }
 
     public static void main(String[] args) {
@@ -116,10 +128,11 @@ public class Board {
                 {7, 6, 5},
         };
         Board board = new Board(tiles);
-        System.out.println(board);
-        System.out.println(board.manhattan());
-        for (Board temp : board.neighbors()) {
-            System.out.println(temp);
-        }
+//        System.out.println(board);
+//        System.out.println(board.manhattan());
+//        for (Board temp : board.neighbors()) {
+//            System.out.println(temp);
+//        }
+        System.out.println(board.twin());
     }
 }
