@@ -3,10 +3,29 @@ import java.util.ArrayList;
 import edu.princeton.cs.algs4.StdRandom;
 
 public class Board {
-    private int[][] tiles;
+    private final int[][] tiles;
+    private final int hamming;
+    private final int manhattan;
+    private final int n;
+
 
     public Board(int[][] tiles) {
         this.tiles = tiles;
+        int ham = 0;
+        int manha = 0;
+        n = tiles.length;
+        for (int i = 0; i < this.dimension(); i++)
+            for (int j = 0; j < this.dimension(); j++)
+                if (tiles[i][j] != 0 && tiles[i][j] != i * this.dimension() + (j + 1)) {
+                    ham += 1;
+                    if (tiles[i][j] != 0 && tiles[i][j] != i * this.dimension() + (j + 1)) {
+                        int realI = tiles[i][j] / this.dimension();
+                        int realJ = tiles[i][j] % this.dimension() - 1;
+                        manha += Math.abs(realI - i) + Math.abs(realJ - j);
+                    }
+                }
+        hamming = ham;
+        manhattan = manha;
     }
 
     public String toString() {
@@ -23,28 +42,15 @@ public class Board {
     }
 
     public int dimension() {
-        return tiles.length;
+        return n;
     }
 
     public int hamming() {
-        int ret = 0;
-        for (int i = 0; i < this.dimension(); i++)
-            for (int j = 0; j < this.dimension(); j++)
-                if (tiles[i][j] != 0 && tiles[i][j] != i * this.dimension() + (j + 1))
-                    ret += 1;
-        return ret;
+        return hamming;
     }
 
     public int manhattan() {
-        int ret = 0;
-        for (int i = 0; i < this.dimension(); i++)
-            for (int j = 0; j < this.dimension(); j++)
-                if (tiles[i][j] != 0 && tiles[i][j] != i * this.dimension() + (j + 1)) {
-                    int realI = tiles[i][j] / this.dimension();
-                    int realJ = tiles[i][j] % this.dimension() - 1;
-                    ret += Math.abs(realI - i) + Math.abs(realJ - j);
-                }
-        return ret;
+        return manhattan;
     }
 
     public boolean isGoal() {
@@ -110,15 +116,19 @@ public class Board {
     }
 
     public Board twin() {
-        int rand1 = StdRandom.uniform(dimension() * dimension());
-        int rand2 = StdRandom.uniform(dimension() * dimension());
-        while (rand1 == rand2) {
-            rand2 = StdRandom.uniform(dimension() * dimension());
+        int n = dimension();
+        int[][] temp = geneTiles();
+        for (int i = 0; i < n * n - 1; i++) {
+            int x = i / n;
+            int y = i % n;
+            int xx = (i + 1) / n;
+            int yy = (i + 1) % n;
+            if (tiles[x][y] != 0 && tiles[xx][yy] != 0) {
+                exch(temp, x, y, xx, yy);
+                break;
+            }
         }
-        int[][] newTile = geneTiles();
-        exch(newTile, rand1 / dimension(), rand1 % dimension(), rand2 / dimension(), rand2 % dimension());
-
-        return new Board(newTile);
+        return new Board(temp);
     }
 
     public static void main(String[] args) {
