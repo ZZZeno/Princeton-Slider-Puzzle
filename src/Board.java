@@ -1,6 +1,5 @@
 import java.util.ArrayList;
 
-import edu.princeton.cs.algs4.StdRandom;
 
 public class Board {
     private final int[][] tiles;
@@ -10,6 +9,7 @@ public class Board {
 
 
     public Board(int[][] tiles) {
+        if (tiles == null) throw new IllegalArgumentException();
         this.tiles = tiles;
         int ham = 0;
         int manha = 0;
@@ -18,18 +18,20 @@ public class Board {
             for (int j = 0; j < this.dimension(); j++)
                 if (tiles[i][j] != 0 && tiles[i][j] != i * this.dimension() + (j + 1)) {
                     ham += 1;
-                    if (tiles[i][j] != 0 && tiles[i][j] != i * this.dimension() + (j + 1)) {
-                        int realI = tiles[i][j] / this.dimension();
-                        int realJ = tiles[i][j] % this.dimension() - 1;
-                        manha += Math.abs(realI - i) + Math.abs(realJ - j);
+                    int realI = tiles[i][j] / this.dimension();
+                    int realJ = tiles[i][j] % this.dimension() - 1;
+                    if (realJ < 0) {
+                        realI -= 1;
+                        realJ = dimension()-1;
                     }
+                    manha += Math.abs(realI - i) + Math.abs(realJ - j);
                 }
         hamming = ham;
         manhattan = manha;
     }
 
     public String toString() {
-        StringBuilder s = new StringBuilder(new String(String.valueOf(this.dimension()) + "\n"));
+        StringBuilder s = new StringBuilder(this.dimension() + "\n");
         for (int[] row : tiles) {
             for (int col : row) {
                 s.append(" ");
@@ -61,7 +63,7 @@ public class Board {
         if (this == y) return true;
         if (this.getClass() != y.getClass()) return false;
         Board obj2 = (Board) y;
-        return this.toString().equals(obj2.toString());
+        return this.equals(obj2);
 
     }
 
@@ -77,9 +79,9 @@ public class Board {
                 }
 
         int[][] neigh = neighbors(i0, j0);
-        for (int[] n : neigh) {
+        for (int[] ne : neigh) {
             int[][] newTiles = geneTiles();
-            boolean res = exch(newTiles, i0, j0, n[0], n[1]);
+            boolean res = exch(newTiles, i0, j0, ne[0], ne[1]);
             if (res) {
                 boardArrayList.add(new Board(newTiles));
             }
@@ -137,12 +139,17 @@ public class Board {
                 {4, 2, 0},
                 {7, 6, 5},
         };
+        tiles = new int[][]{
+                {5, 8, 7},
+                {1, 4, 6},
+                {3, 0, 2},
+        };
         Board board = new Board(tiles);
 //        System.out.println(board);
 //        System.out.println(board.manhattan());
 //        for (Board temp : board.neighbors()) {
 //            System.out.println(temp);
 //        }
-        System.out.println(board.twin());
+        System.out.println(board.manhattan());
     }
 }
