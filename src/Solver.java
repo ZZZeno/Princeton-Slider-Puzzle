@@ -43,11 +43,7 @@ public class Solver {
         GameTreeNode gameTreeNode = new GameTreeNode(initial, false);
         gameTreeNode.moves = 0;
 
-        GameTreeNode gameTreeNodeTwin = new GameTreeNode(twin, true);
-        addToTree(gameTreeNodeTwin, gameTreeNode);
-
         gameTreeNodesMinPQ.insert(gameTreeNode);
-        gameTreeNodesMinPQ.insert(gameTreeNodeTwin);
         resolve();
     }
 
@@ -65,14 +61,23 @@ public class Solver {
     }
 
     private void resolve() {
+        GameTreeNode gameTreeNode;
+        boolean addFlag = true;
+
         while (!gameTreeNodesMinPQ.isEmpty()) {
 //            System.out.println(gameTreeNodesMinPQ.size());
 ////            System.out.println(gameTreeNodesMinPQ.min());
 //            System.out.println(gameTreeNodesMinPQ.min().board);
 //            System.out.println("***************************");
-
-            GameTreeNode gameTreeNode = gameTreeNodesMinPQ.min();
+            gameTreeNode = gameTreeNodesMinPQ.min();
             gameTreeNodesMinPQ.delMin();
+            if (addFlag) {
+                Board twin = gameTreeNode.board.twin();
+                GameTreeNode gameTreeNodeTwin = new GameTreeNode(twin, true);
+                addToTree(gameTreeNodeTwin, gameTreeNode);
+                gameTreeNodesMinPQ.insert(gameTreeNodeTwin);
+                addFlag = false;
+            }
             GameTreeNode temp = gameTreeNode;
             if (gameTreeNode.board.isGoal()) {
                 // 如果队列前端的是Goal状态
@@ -83,7 +88,7 @@ public class Solver {
                     this.solvable = true;
                     this.moves = gameTreeNode.moves;
                 }
-                while (temp.parent != null) {
+                while (temp != null) {
                     boardStack.push(temp.board);
                     temp = temp.parent;
                 }
@@ -119,6 +124,10 @@ public class Solver {
                 {0, 2, 3},
                 {1, 5, 6},
                 {4, 7, 8},
+        };
+        tiles = new int[][] {
+            {0 ,3},
+            {2, 1},
         };
         Board board = new Board(tiles);
         Solver solver = new Solver(board);
